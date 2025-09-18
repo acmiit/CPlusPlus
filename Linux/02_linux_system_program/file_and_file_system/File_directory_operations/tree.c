@@ -17,9 +17,10 @@ void tree(const char * path,int deep){
         {
             if(strcmp(pdirent->d_name,".")==0 || strcmp(pdirent->d_name,"..")==0)
                 continue;
+            printf("|---");
             for(int i=0;i<deep;i++)
                 printf(" ");
-            printf("|-- %s/\n",pdirent->d_name);
+            printf("%s/\n",pdirent->d_name);
             tree(full_path,deep+1);
         }
         else{
@@ -35,7 +36,7 @@ void tree(const char * path,int deep){
 }
 int main(int argc,char * argv[]){
     const char *path = (argc > 1) ? argv[1] : ".";
- 
+    printf("%s\n",path);
     tree(path,0);
     return 0;
 }
