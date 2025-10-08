@@ -18,12 +18,20 @@ int main(int argc,char* argv[]){
         //select返回之后，说明fdr or stdin就绪了 rdset现在是就绪集合
         if(FD_ISSET(fdr,&rdset)){
             memset(buf,0,sizeof(buf));
-            read(fdr,buf,sizeof(buf));
+            ssize_t ret = read(fdr,buf,sizeof(buf));
+            if(ret == 0){
+                printf("Hehe\n");
+                break;
+            }
             printf("buf=%s\n",buf);
         }
         if(FD_ISSET(STDIN_FILENO,&rdset)){
             memset(buf,0,sizeof(buf));
-            read(STDERR_FILENO,buf,sizeof(buf));
+            ssize_t ret =read(STDERR_FILENO,buf,sizeof(buf));
+            if(ret == 0){
+                write(fdw,"nishigehaoren\n",13);
+                break;
+            }
             write(fdw,buf,strlen(buf));
         }
     }
