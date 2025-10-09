@@ -9,12 +9,23 @@ int main(int argc,char* argv[]){
     printf("azhen is connected!\n");
     char buf[4096];
     fd_set rdset;
+    struct timeval timeout;
+    timeout.tv_sec=10;
+    timeout.tv_usec=0;
     while(1){
         //select之前设置监听
         FD_ZERO(&rdset);
         FD_SET(STDIN_FILENO,&rdset);
         FD_SET(fdr,&rdset);
-        select(fdr+1,&rdset,NULL,NULL,NULL);
+        time_t now=time(NULL);
+        printf("%s",ctime(&now));
+        ssize_t ret = select(fdr+1,&rdset,NULL,NULL,&timeout);
+        if(ret == 0){
+            printf("timeout!\n");
+            time_t now=time(NULL);
+            printf("%s",ctime(&now));
+            break;
+        }
         //select返回之后，说明fdr or stdin就绪了 rdset现在是就绪集合
         if(FD_ISSET(fdr,&rdset)){
             memset(buf,0,sizeof(buf));
@@ -24,6 +35,8 @@ int main(int argc,char* argv[]){
                 break;
             }
             printf("buf=%s\n",buf);
+            timeout.tv_sec=10;
+            timeout.tv_usec=0;
         }
         if(FD_ISSET(STDIN_FILENO,&rdset)){
             memset(buf,0,sizeof(buf));
