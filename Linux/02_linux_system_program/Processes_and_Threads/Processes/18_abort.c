@@ -9,7 +9,11 @@ int main(int argc,char*argv[]){
             printf("abnormal quit, terminal signial = %d\n",WTERMSIG(wstatus));
         }
     }else{
-        return 1;
+        while(1){
+            //自杀 异常退出，自己给自己发送一个6号信号
+            abort();
+            sleep(1);
+        }
     }
     return 0;
 }
