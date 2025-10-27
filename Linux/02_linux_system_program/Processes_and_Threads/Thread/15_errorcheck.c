@@ -20,4 +20,4 @@ int main(int argc,char *argv[]){
     printf("I got lock!\n");
     pthread_mutex_unlock(&mutex);
     return 0;
-}
+}  
