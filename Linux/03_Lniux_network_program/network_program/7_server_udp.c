@@ -18,6 +18,25 @@ int main(int argc,char *argv[]){
     while(1){
         FD_ZERO(&rdset);
         FD_SET(STDIN_FILENO,&rdset);
+        FD_SET(sockfd,&rdset);
+        select(sockfd+1,&rdset,NULL,NULL,NULL);
+        if(FD_ISSET(sockfd,&rdset)){
+            memset(buf,0,4096);
+            ssize_t sret = recvfrom(sockfd,buf,4096,0,NULL,NULL);
+            if(sret == 0){
+                break;
+            }
+            printf("sret = %ld,buf=%s\n",sret,buf);
+        }
+        if(FD_ISSET(STDIN_FILENO,&rdset)){
+            memset(buf,0,4096);
+            ssize_t sret = read(STDIN_FILENO,buf,4096);
+            if(sret==0){
+                sendto(sockfd,buf,0,0,(struct sockaddr *)&clientaddr,sizeof(clientaddr));
+                break;
+            }
+            sendto(sockfd,buf,strlen(buf),0,(struct sockaddr *)&clientaddr,sizeof(clientaddr));
+        }
     }
     return 0;
 }
