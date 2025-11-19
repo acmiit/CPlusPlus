@@ -11,6 +11,9 @@ int main(int argc,char *argv[]){
     tcpInit(argv[1],argv[2],&sockfd);
     //初始化epoll
     int epfd=epoll_create(1);
+    for(int i=0;i<workerNum;i++){
+        epollAdd(epfd,workerArr[i].pipesockfd);
+    }
     epollAdd(epfd,sockfd);
     while(1){
         struct epoll_event readySet[1024];
@@ -27,7 +30,19 @@ int main(int argc,char *argv[]){
                         break;
                     }
                 }
+                //没有空闲的子进程的就拒绝访问
                 close(netfd);
+            }else{
+                //某个子进程完成任务了
+                int pipesockfd=readySet[i].data.fd;
+                for(int j=0;j<workerNum;j++){
+                    if(workerArr[i].pipesockfd == pipesockfd){
+                        pid_t pid;
+                        recv(pipesockfd,&pid,sizeof(pid),0);
+                        workerArr[i].status=FREE;
+                        break;
+                    }
+                }
             }
         }
     }

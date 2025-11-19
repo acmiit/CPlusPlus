@@ -4,8 +4,11 @@ int workLoop(int sockfd){
         int netfd;
         recvfd(sockfd,&netfd); //接收任务
         printf("begin work!\n"); //执行任务
-        sleep(3);
+        transFile(netfd);
         printf("work over!\n");
+        //完成任务之后，向主人进程发送自己pid
+        pid_t pid=getpid();
+        send(sockfd,&pid,sizeof(pid),0);
     }
     return 0;
 }
@@ -24,4 +27,5 @@ int makeWorker(int workerNum,workerdata_t *workerArr){
         workerArr[i].pipesockfd=pipefd[1];
         printf("i=%d , pid=%d pipefd=%d\n",i,pid,pipefd[1]);
     }
+    return 0;
 }

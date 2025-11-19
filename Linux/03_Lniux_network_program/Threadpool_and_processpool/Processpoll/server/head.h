@@ -10,8 +10,11 @@ typedef struct workerdata_s{
 }workerdata_t;
 
 int makeWorker(int workerNum,workerdata_t *workerArr);
+int workLoop(int sockfd);
 int tcpInit(const char *ip,char *port,int *psockfd);
 int epollAdd(int epfd,int fd);
 int epollDel(int epfd,int fd);
 int sendfd(int sockfd,int fdtosend);
 int recvfd(int sockfd,int *pfdtorecv);
+
+int transFile(int netfd);
