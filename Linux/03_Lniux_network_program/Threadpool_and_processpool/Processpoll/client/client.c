@@ -65,7 +65,52 @@ int recvn(int sockfd,void *buf,long total){
 //     close(fd);
 //     return 0;
 // }
+//4.0
+// int recvFile(int sockfd){
+//     char filename[1024]={0};
+//     train_t train;
+//     // recv(sockfd,&train.length,sizeof(train.length),MSG_WAITALL);
+//     // recv(sockfd,train.data,train.length,MSG_WAITALL);
+//     recvn(sockfd,&train.length,sizeof(train.length));
+//     recvn(sockfd,train.data,train.length);
+//     memcpy(filename,train.data,train.length);
 
+//     off_t filesize;
+//     // recv(sockfd,&train.length,sizeof(train.length),MSG_WAITALL);
+//     // recv(sockfd,train.data,train.length,MSG_WAITALL);
+//     recvn(sockfd,&train.length,sizeof(train.length));
+//     recvn(sockfd,train.data,train.length);
+//     memcpy(&filesize,train.data,train.length);
+//     printf("filesize = %ld\n",filesize);
+//     int fd=open(filename,O_CREAT|O_RDWR|O_TRUNC,0666);
+
+//     off_t cursize=0;
+//     off_t lastsize = 0;
+//     off_t slice=filesize/10000;
+//     while(1){
+//         // recv(sockfd,&train.length,sizeof(train.length),MSG_WAITALL);
+//         recvn(sockfd,&train.length,sizeof(train.length));
+//         if(train.length!=1024){
+//             printf("train.length = %d\n",train.length);
+//         }
+//         if(train.length==0){
+//             break;
+//         }
+//         cursize +=train.length;
+//         // recv(sockfd,train.data,train.length,MSG_WAITALL);
+//         recvn(sockfd,train.data,train.length);
+//         write(fd,train.data,train.length);
+//         if(cursize-lastsize>slice){
+//             printf("%5.2lf%%\r",cursize*100.0/filesize);
+//             fflush(stdout);
+//             lastsize=cursize;
+//         }
+//     }
+//     printf("100.00%%\n");
+//     close(fd);
+//     return 0;
+// }
+//5.0
 int recvFile(int sockfd){
     char filename[1024]={0};
     train_t train;
@@ -83,33 +128,15 @@ int recvFile(int sockfd){
     memcpy(&filesize,train.data,train.length);
     printf("filesize = %ld\n",filesize);
     int fd=open(filename,O_CREAT|O_RDWR|O_TRUNC,0666);
-
-    off_t cursize=0;
-    off_t lastsize = 0;
-    off_t slice=filesize/10000;
-    while(1){
-        // recv(sockfd,&train.length,sizeof(train.length),MSG_WAITALL);
-        recvn(sockfd,&train.length,sizeof(train.length));
-        if(train.length!=1024){
-            printf("train.length = %d\n",train.length);
-        }
-        if(train.length==0){
-            break;
-        }
-        cursize +=train.length;
-        // recv(sockfd,train.data,train.length,MSG_WAITALL);
-        recvn(sockfd,train.data,train.length);
-        write(fd,train.data,train.length);
-        if(cursize-lastsize>slice){
-            printf("%5.2lf%%\r",cursize*100.0/filesize);
-            fflush(stdout);
-            lastsize=cursize;
-        }
-    }
-    printf("100.00%%\n");
+    ftruncate(fd,filesize); //先修改文件大小
+    char *p=(char *)mmap(NULL,filesize,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+    ERROR_CHECK(p,MAP_FAILED,"mmap");
+    recvn(sockfd,p,filesize);
+    munmap(p,filesize);
     close(fd);
     return 0;
 }
+
 int main(int argc,char *argv[]){
     ARGS_CHECK(argc,3);
     int sockfd=socket(AF_INET,SOCK_STREAM,0);

@@ -81,6 +81,44 @@ typedef struct train_s{
 // }
 
 //4.1 使用mmap
+// int transFile(int netfd){
+//     train_t train;
+//     char filename[]="file1";
+//     train.length=strlen(filename);
+//     memcpy(train.data,filename,train.length);
+//     send(netfd,&train,sizeof(train.length)+train.length,MSG_NOSIGNAL);
+
+//     int fd=open(filename,O_RDWR);
+//     struct stat statbuf;
+//     fstat(fd,&statbuf);
+//     train.length=sizeof(off_t);
+//     memcpy(train.data,&statbuf.st_size,train.length);
+//     send(netfd,&train,sizeof(train.length)+train.length,MSG_NOSIGNAL);
+
+//     char *p=(char *)mmap(NULL,statbuf.st_size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+//     ERROR_CHECK(p,MAP_FAILED,"mmap");
+//     off_t cursize=0;
+//     while(1){
+//         if(cursize >= statbuf.st_size){
+//             break;
+//         }
+//         if(statbuf.st_size -cursize>=1000){
+//             train.length=1000;
+//         }else{
+//             train.length=statbuf.st_size-cursize;
+//         }
+//         send(netfd,&train.length,sizeof(train.length),MSG_NOSIGNAL);
+//         send(netfd,p+cursize,train.length,MSG_NOSIGNAL);
+//         cursize+=train.length;
+//     }
+//     train.length=0;
+//     send(netfd,&train.length,sizeof(train.length),MSG_NOSIGNAL);
+//     munmap(p,statbuf.st_size);
+//     close(fd);
+//     return 0;
+// }
+
+//5.0使用大火车
 int transFile(int netfd){
     train_t train;
     char filename[]="file1";
@@ -95,25 +133,12 @@ int transFile(int netfd){
     memcpy(train.data,&statbuf.st_size,train.length);
     send(netfd,&train,sizeof(train.length)+train.length,MSG_NOSIGNAL);
 
-    char *p=(char *)mmap(NULL,statbuf.st_size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
-    ERROR_CHECK(p,MAP_FAILED,"mmap");
-    off_t cursize=0;
-    while(1){
-        if(cursize >= statbuf.st_size){
-            break;
-        }
-        if(statbuf.st_size -cursize>=1000){
-            train.length=1000;
-        }else{
-            train.length=statbuf.st_size-cursize;
-        }
-        send(netfd,&train.length,sizeof(train.length),MSG_NOSIGNAL);
-        send(netfd,p+cursize,train.length,MSG_NOSIGNAL);
-        cursize+=train.length;
-    }
-    train.length=0;
-    send(netfd,&train.length,sizeof(train.length),MSG_NOSIGNAL);
-    munmap(p,statbuf.st_size);
+    // char *p=(char *)mmap(NULL,statbuf.st_size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+    // ERROR_CHECK(p,MAP_FAILED,"mmap");
+    // send(netfd,p,statbuf.st_size,MSG_NOSIGNAL);
+    // munmap(p,statbuf.st_size);
+    sendfile(netfd,fd,NULL,statbuf.st_size); //底层是用mmap实现的
+
     close(fd);
     return 0;
-}
+} 
