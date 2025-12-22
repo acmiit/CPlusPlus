@@ -50,7 +50,7 @@ int main(int argc,char*argv[])
         now = time(NULL);
         printf("now = %s\n", ctime(&now));
  
-        //遍历就绪集合
+        //遍历就绪集合 
         for(int i = 0; i < readyNum; i++){
             if(readySet[i].data.fd == sockfd){//sockfd 就绪说明有新的链接来到，
                 int netfd = accept(sockfd, NULL, NULL);//accept新的链接并把netfd加入监听

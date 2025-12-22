@@ -14,7 +14,7 @@ int workLoop(int sockfd);
 int tcpInit(const char *ip,char *port,int *psockfd);
 int epollAdd(int epfd,int fd);
 int epollDel(int epfd,int fd);
-int sendfd(int sockfd,int fdtosend);
-int recvfd(int sockfd,int *pfdtorecv);
+int sendfd(int sockfd,int fdtosend,int exitFlag);
+int recvfd(int sockfd,int *pfdtorecv,int *exitFlag);
 
 int transFile(int netfd);

@@ -36,7 +36,7 @@ int main(int argc,char *argv[]){
                 //顺序查找空闲的子进程
                 for(int j=0;j<workerNum;j++){
                     if(workerArr[j].status==FREE){
-                        sendfd(workerArr[j].pipesockfd,netfd);
+                        sendfd(workerArr[j].pipesockfd,netfd,0);
                         workerArr[j].status=BUSY;
                         break;
                     }
@@ -46,12 +46,13 @@ int main(int argc,char *argv[]){
             }else if(readySet[i].data.fd==exitPipe[0]){
                 //进程池要退出了
                 for(int j=0;j<workerNum;j++){
-                    kill(workerArr[j].pid,SIGKILL);
+                    // kill(workerArr[j].pid,SIGKILL);
+                    sendfd(workerArr[j].pipesockfd,0,1);
                     printf("Kill 1 worker!\n");
                 }
                 for(int j=0;j<workerNum;j++){
                     wait(NULL);
-                }
+                } 
                 printf("All workers are killed!\n");
                 exit(0);
             }else{

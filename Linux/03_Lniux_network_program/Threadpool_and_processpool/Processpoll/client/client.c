@@ -132,6 +132,7 @@ int recvFile(int sockfd){
     char *p=(char *)mmap(NULL,filesize,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
     ERROR_CHECK(p,MAP_FAILED,"mmap");
     recvn(sockfd,p,filesize);
+    // sleep(10);
     munmap(p,filesize);
     close(fd);
     return 0;

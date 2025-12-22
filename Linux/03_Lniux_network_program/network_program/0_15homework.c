@@ -4,7 +4,7 @@ typedef struct shareRes_s{
     pthread_mutex_t mutex;
     pthread_cond_t cond;
 }shareRes_t;
-void* threadFun(void *arg){
+void*  threadFun(void *arg){
     shareRes_t *pshareRes =(shareRes_t *)arg;
     pthread_mutex_lock(&pshareRes->mutex);
     while(pshareRes->flag!=1){
