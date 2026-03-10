@@ -28,6 +28,6 @@ int main(){
      (fff.*p)(6);
 
      Func p2=&FFF::display;
-     (fff.*p2)(6);
+     (fff.*p2)(7);
     return 0;
 } 
