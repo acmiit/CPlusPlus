@@ -49,6 +49,6 @@ int main(){
     // b.display();
     Base *base=new Derived();
     base->display();
-    delete base; //泄露四个字节的内存空间 //一共有 24+8 （虚指针、_pbase、_pderived）+(10,20 内容)，最终泄露的存放20int内容的堆空间
+    delete base; //如果~Base()不设置为虚函数，则会泄露四个字节的内存空间 //一共有 24+8 （虚指针、_pbase、_pderived）+(10,20 内容)，最终泄露的存放20int内容的堆空间
     return 0;
 }
