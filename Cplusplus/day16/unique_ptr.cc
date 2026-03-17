@@ -19,7 +19,7 @@ class Point{
         int _ix;
         int _iy;
     
-    };
+};
 void test0(){
     unique_ptr<int> up(new int(10));
     cout<<"*up:"<<*up<<endl;

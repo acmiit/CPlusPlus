@@ -5,26 +5,19 @@
 #include <unordered_map>
 #include <climits>
 using namespace std;
-bool isValid(string s) {
-    vector<char> stack;
-    for(int i=0;i<s.size();i++){
-        if(s[i]=='('||s[i]=='['||s[i]=='{'){
-            stack.push_back(s[i]);
+void moveZeroes(vector<int>& nums) {
+    int count=0;
+    for(int i=0;i<nums[i];i++){
+        if(nums[i]==0){
+            count++;
         }else{
-            if(stack.empty()){
-                return false;
-            }else{
-                if(s[i]==')'&&stack.back()=='('||s[i]==']'&&stack.back()=='['||s[i]=='}'&&stack.back()=='{'){
-                    stack.pop_back();
-                }else{
-                    return false;
-                }
-            }
+            nums[i-count]=nums[i];
+            cout<<i<<endl;
         }
     }
-    return stack.empty();
 }
 int main(){
-    cout<<isValid("([)]")<<endl;
+    vector<int> nums{0,1,0,3,13};
+    moveZeroes(nums);
     return 0;
 }
