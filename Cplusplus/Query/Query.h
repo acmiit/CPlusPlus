@@ -185,7 +185,7 @@ class OrQuery
 
 inline Query operator&(const Query &lhs, const Query &rhs)
 {
-    return std::shared_ptr<Query_base>(new AndQuery(lhs, rhs));//ÒşÊ½×ª»»
+    return std::shared_ptr<Query_base>(new AndQuery(lhs, rhs));//éšå¼è½¬æ¢
 }
 
 inline Query operator|(const Query &lhs, const Query &rhs)
