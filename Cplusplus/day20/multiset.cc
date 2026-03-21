@@ -18,7 +18,7 @@ void test0(){
     display(number);
 
     cout<<endl<<"测试bound函数"<<endl;
-    //返回第一个不小于3的迭代器
+    //返回第一个不小于（大于等于 ）3的迭代器
     auto it=number.lower_bound(3);
     cout<<"*it= "<<*it<<endl;
         //返回第一个大3的迭代器
