@@ -121,10 +121,8 @@ void test01()
     figure.setAreaCallback(bind(&Traingle::calcArea, &traingle));
     test(figure);
 }
-// 海伦公式
 int main()
 {
-    // Figure f;
     test01();
     return 0;
 }
