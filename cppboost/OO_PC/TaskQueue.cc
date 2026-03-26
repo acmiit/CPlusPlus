@@ -1,40 +1,51 @@
-#include"TaskQueue.h"
+#include "TaskQueue.h"
 
 TaskQueue::TaskQueue(size_t queSize)
-:_queSize(queSize)
-,_que()
-,_mutex()
-,_notfull(_mutex)
-,_notempty(_mutex)
+    : _queSize(queSize), _que(), _mutex(), _notfull(_mutex), _notempty(_mutex)
 {
-
 }
-TaskQueue::~TaskQueue(){
-
+TaskQueue::~TaskQueue()
+{
 }
-void TaskQueue::push(int value){
-    _mutex.lock();
-    if(full()){
+void TaskQueue::push(int value)
+{
+    // 利用ARII技术实现自动解锁
+    MutexLockGuard autoLock(_mutex);
+    // _mutex.lock();
+    while (full())
+    {
         _notfull.wait();
     }
     _que.push(value);
     _notempty.notify();
-    _mutex.unlock();
+    // _mutex.unlock();
 }
-int TaskQueue::pop(){
-    _mutex.lock();
-    if(empty()){
-        _notempty.wait();
+int TaskQueue::pop()
+{
+    int tmp = 0;
+    //大括号让ARII的作用域缩小，让加锁的作用域最小
+    {
+        // 利用ARII技术实现自动解锁
+        MutexLockGuard autoLock(_mutex);
+        // _mutex.lock();
+        //pthread_signal 会唤醒至少一个，存在虚假唤醒，需要使用while
+        while (empty()) 
+        {
+            _notempty.wait();
+        }
+        tmp = _que.front();
+        _que.pop();
+        _notfull.notify();
+        // _mutex.unlock();
     }
-    int tmp=_que.front();
-    _que.pop();
-    _notfull.notify();
-    _mutex.unlock();
+
     return tmp;
 }
-bool TaskQueue::full() const{
-    return _que.size()==_queSize;
+bool TaskQueue::full() const
+{
+    return _que.size() == _queSize;
 }
-bool TaskQueue::empty() const{
-    return _que.size()==0;
+bool TaskQueue::empty() const
+{
+    return _que.size() == 0;
 }
