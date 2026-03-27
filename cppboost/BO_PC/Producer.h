@@ -5,12 +5,11 @@ class TaskQueue;
 class Producer
 {
 public:
-    Producer(TaskQueue & taskQue);
+    Producer()=default;
     ~Producer();
-    void run();
+    void run(TaskQueue &taskQue);
 
 private:
-    TaskQueue &_taskQue;
 };
 
 #endif //__PRODUCER_H__

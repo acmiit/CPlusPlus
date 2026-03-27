@@ -1,16 +1,15 @@
 #ifndef __CONSUMER_H__
 #define __CONSUMER_H__
-#include"Thread.h"
+#include "Thread.h"
 class TaskQueue;
 class Consumer
 {
 public:
-Consumer(TaskQueue & taskQue);
+    Consumer() = default;
     ~Consumer();
-    void run();
+    void run(TaskQueue &taskQue);
 
 private:
-    TaskQueue &_taskQue;
 };
 
 #endif //__CONSUMER_H__
