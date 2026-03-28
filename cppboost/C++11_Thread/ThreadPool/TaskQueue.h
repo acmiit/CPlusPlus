@@ -1,6 +1,5 @@
 #ifndef __TASKQUEUE_H__
 #define __TASKQUEUE_H__
-#include <pthread.h>
 #include <queue>
 #include<mutex>
 #include<condition_variable>
