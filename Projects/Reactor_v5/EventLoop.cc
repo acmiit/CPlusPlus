@@ -4,15 +4,19 @@
 #include <unistd.h>
 #include <sys/epoll.h>
 #include <iostream>
+#include <sys/eventfd.h>
 using std::cerr;
 using std::cout;
 using std::endl;
 EventLoop::EventLoop(Acceptor &acceptor)
-    : _epfd(createEpollFd()), _evtList(1024), _isLooping(false), _acceptor(acceptor)
+    : _epfd(createEpollFd()), _evtList(1024), _isLooping(false), _acceptor(acceptor), _evtfd(createEpollFd()), _mutex()
 {
     // 将listenfd放在红黑树上监听
     int listenfd = _acceptor.fd();
     addEpollReadFd(listenfd);
+
+    // 将用于通信的文件描述符放在红黑树上进行监听
+    addEpollReadFd(_evtfd);
 }
 EventLoop::~EventLoop()
 {
@@ -37,7 +41,7 @@ void EventLoop::waitEpollFd()
     int readyNum = 0;
     do
     {
-        readyNum = epoll_wait(_epfd, &*_evtList.begin(), _evtList.size(), 3000); //3秒
+        readyNum = epoll_wait(_epfd, &*_evtList.begin(), _evtList.size(), 3000); // 3秒
     } while (-1 == readyNum && errno == EINTR);
     if (-1 == readyNum)
     {
@@ -67,6 +71,15 @@ void EventLoop::waitEpollFd()
                     handleNewConncetion();
                 }
             }
+            else if (fd == _evtfd)
+            {
+                if (_evtList[idx].events & EPOLLIN)
+                {
+                    handleRead();
+                    // 执行所以待执行的"任务"
+                    doPengdingFunctors();
+                }
+            }
             else
             {
                 if (_evtList[idx].events & EPOLLIN)
@@ -89,7 +102,7 @@ void EventLoop::handleNewConncetion()
     }
     addEpollReadFd(connfd);
     // 就表明三次握手已经建立成功
-    TcpConnectionPtr con(new TcpConnection(connfd));
+    TcpConnectionPtr con(new TcpConnection(connfd, this));
 
     // 将三个回调函数注册给TcpConnection
     con->setNewConnectionCallback(_onNewConnectCb);
@@ -113,8 +126,8 @@ void EventLoop::handleMessage(int fd)
         if (flag)
         {
             it->second->handleCloseCallback();
-            delEpollReadFd(fd); //将文件描述符从红黑树中删除
-            _conns.erase(it);   //同时将该链接从map中删除
+            delEpollReadFd(fd); // 将文件描述符从红黑树中删除
+            _conns.erase(it);   // 同时将该链接从map中删除
         }
         else
         {
@@ -179,4 +192,62 @@ void EventLoop::setNewMessageCallback(TcpConnectionCallback &&cb)
 void EventLoop::setNewCloseCallback(TcpConnectionCallback &&cb)
 {
     _onCloseCb = std::move(cb);
+}
+
+void EventLoop::handleRead()
+{
+    uint64_t two;
+    ssize_t ret = read(_evtfd, &two, sizeof(uint64_t));
+    if (ret != sizeof(uint64_t))
+    {
+        perror("read");
+        return;
+    }
+}
+void EventLoop::runInLoop(Functor &&cb)
+{
+    { // 锁的粒度（锁的范围）
+        MutexLockGuard autoLock(_mutex);
+        _pendings.push_back(std::move(cb));
+    }
+
+    // 只要将"任务"传递EventLoop/Reactor之后
+    //就应该通知EventLoop/Reactor
+    wakeup();
+}
+
+// 将存放在vector中的"任务"进行遍历执行
+void EventLoop::doPengdingFunctors()
+{
+    vector<Functor> tmp;
+    // 将锁的粒度表的更小，提高并发程度
+    {
+        MutexLockGuard autoLock(_mutex);
+        tmp.swap(_pendings);
+    }
+    for (auto &cb : tmp)
+    {
+        cb();
+    }
+}
+
+void EventLoop::wakeup()
+{
+    uint64_t one = 1;
+    ssize_t ret = write(_evtfd, &one, sizeof(uint64_t));
+    if (ret != sizeof(uint64_t))
+    {
+        perror("write");
+        return;
+    }
+}
+int EventLoop::createEventFd()
+{
+    int fd = eventfd(10, 0);
+    if (fd < 0)
+    {
+        perror("eventfd");
+        return fd;
+    }
+    return fd;
 }
