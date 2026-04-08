@@ -1,0 +1,14 @@
+<sites>
+    <site>
+        <name>王道论坛</name>
+        <url>www.cskaoyan.com</url>
+    </site>
+    <site>
+        <name>google</name>
+        <url>www.google.com</url>
+    </site>
+    <site>
+        <name>微博</name>
+        <url>www.weibo.com</url>
+    </site>
+</sites>
