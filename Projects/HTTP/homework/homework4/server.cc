@@ -92,7 +92,7 @@ int main() {
             // 注意：\r\n\r\n 是 HTTP 协议中头部和请求体（Body）的分隔符
             std::string header = 
                 "HTTP/1.1 200 OK\r\n"
-                "Content-Type: image/png\r\n"
+                "Content-Type: image.png\r\n"
                 "Content-Length: " + std::to_string(img_data.size()) + "\r\n"
                 "Connection: close\r\n\r\n";
 
