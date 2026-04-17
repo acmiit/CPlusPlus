@@ -1,0 +1,1 @@
+g++ aliyun_OSS.cc -o aliyun_OSS -std=c++11 -fno-rtti -L/usr/local/lib -lalibabacloud-oss-cpp-sdk -lcurl -lssl -lcrypto -lpthread

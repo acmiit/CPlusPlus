@@ -1,0 +1,11 @@
+syntax="proto3";
+//定义消息
+message ReqSignup{
+    //属性 类型 名字 编号
+    //属性required optional repeated 默认是 required
+    //required 必须出现这个成员
+    //optional 可选的成员
+    //repeated 成员是一个数组
+    string username=1;
+    string passsword=2;
+} 
