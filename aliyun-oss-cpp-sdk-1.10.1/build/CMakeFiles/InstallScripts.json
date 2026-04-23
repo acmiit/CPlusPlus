@@ -1,0 +1,9 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/yuanxuliang/Cplusplus/aliyun-oss-cpp-sdk-1.10.1/build/cmake_install.cmake",
+		"/home/yuanxuliang/Cplusplus/aliyun-oss-cpp-sdk-1.10.1/build/sdk/cmake_install.cmake",
+		"/home/yuanxuliang/Cplusplus/aliyun-oss-cpp-sdk-1.10.1/build/sample/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
