@@ -7,8 +7,13 @@ using std::cout;
 using namespace AlibabaCloud::OSS;
 struct OSSInfo{
     string EndPoint="oss-cn-guangzhou.aliyuncs.com";
+<<<<<<< 3d6094e2102d1a0079b59a546a00489b963bc92c
     string AccessKetID="LTAI5tB617wtdbFhJqck9kiJ";
     string AccessKeySecret="RvlLQKdQnu7t0moaFl9d8zUXDIER2k";
+=======
+    string AccessKetID="";
+    string AccessKeySecret="";
+>>>>>>> Remove hardcoded secrets and binary files
     string Bucket="yxl-cplusplus";
 };
 int main(){
